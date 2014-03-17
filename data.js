@@ -1,4 +1,4 @@
-var issues = [
+exports.issues = [
   {
     "url": "https://api.github.com/repos/twbs/bootstrap/issues/12755",
     "labels_url": "https://api.github.com/repos/twbs/bootstrap/issues/12755/labels{/name}",

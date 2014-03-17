@@ -9,7 +9,7 @@ App.Router.map(function() {
 
 App.IssuesRoute = Ember.Route.extend({
   model: function() {
-    return issues;
+    return $.getJSON('/issues');
   }
 });
 
@@ -21,6 +21,7 @@ App.IssuesNewRoute = Ember.Route.extend({
 
 App.IssueRoute = Ember.Route.extend({
   model: function(params) {
+    var issues = this.modelFor('issues');
     return issues.findBy('id', parseInt(params.issue_id, 10));
   }
 });
@@ -33,6 +34,11 @@ App.IssueController = Ember.ObjectController.extend({
     },
     doneEditing: function() {
       this.set('editing', false);
+      $.ajax({
+        url: '/issues/' + this.get('model.id'),
+        data: this.get('model'),
+        method: 'PUT'
+      });
     }
   }
 });
@@ -42,9 +48,14 @@ App.IssuesNewController = Ember.ObjectController.extend({
   actions: {
     createIssue: function() {
       var model = this.get('model');
-      var issues = this.get('controllers.issues').get('model');
-      issues.unshiftObject(this.get('model'));
-      this.transitionToRoute('issue', model);
+      var issues = this.get('controllers.issues.model');
+
+      $.post('/issues', model)
+      .then(function(i) {
+        m = i;
+        issues.unshiftObject(m);
+        this.transitionToRoute('issue', m);
+      }.bind(this));
     }
   }
 });
