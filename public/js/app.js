@@ -9,7 +9,7 @@ App.Router.map(function() {
 
 App.IssuesRoute = Ember.Route.extend({
   model: function() {
-    return $.getJSON('/issues');
+    return this.store.find('issue');
   }
 });
 
@@ -21,9 +21,12 @@ App.IssuesNewRoute = Ember.Route.extend({
 
 App.IssueRoute = Ember.Route.extend({
   model: function(params) {
-    var issues = this.modelFor('issues');
-    return issues.findBy('id', parseInt(params.issue_id, 10));
+    return this.store.find('issue', params.issue_id);
   }
+});
+
+App.IssuesController = Ember.ArrayController.extend({
+  sortProperties: ['id']
 });
 
 App.IssueController = Ember.ObjectController.extend({
@@ -34,11 +37,7 @@ App.IssueController = Ember.ObjectController.extend({
     },
     doneEditing: function() {
       this.set('editing', false);
-      $.ajax({
-        url: '/issues/' + this.get('model.id'),
-        data: this.get('model'),
-        method: 'PUT'
-      });
+      this.get('model').save();
     }
   }
 });
@@ -47,14 +46,13 @@ App.IssuesNewController = Ember.ObjectController.extend({
   needs: ['issues'],
   actions: {
     createIssue: function() {
-      var model = this.get('model');
-      var issues = this.get('controllers.issues.model');
+      var model = this.get('model'),
 
-      $.post('/issues', model)
-      .then(function(i) {
-        m = i;
-        issues.unshiftObject(m);
-        this.transitionToRoute('issue', m);
+        issue = this.store.createRecord('issue', model);
+
+      issue.save()
+      .then(function() {
+        this.transitionToRoute('issue', issue);
       }.bind(this));
     }
   }

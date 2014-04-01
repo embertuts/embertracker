@@ -8,25 +8,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.bodyParser());
 
 app.get('/issues', function(req, res) {
-  res.send(issues);
+  res.send({'issues': issues});
 });
 
 app.put('/issues/:id', function(req, res) {
   for (var i = issues.length - 1; i >= 0; i--) {
-    if (issues[i].id == req.body.id) {
-      issues[i].title = req.body.title;
-      issues[i].body = req.body.body;
-      res.send(issues[i]);
+    if (issues[i].id == req.params.id) {
+      issues[i].title = req.body.issue.title;
+      issues[i].body = req.body.issue.body;
+      res.send({'issue': issues[i]});
       break;
     }
   }
 });
 
 app.post('/issues', function(req, res) {
-  var issue = req.body;
+  var issue = req.body.issue;
   issue.id = id++;
   issues.unshift(issue);
-  res.send(issue);
+  res.send({'issue': issue});
 });
 
 app.listen(3000, function() {
